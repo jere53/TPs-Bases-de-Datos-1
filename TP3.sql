@@ -471,13 +471,12 @@ ADD CHECK (
     );
 
 --e
---este seguro que esta mal
-CREATE ASSERTION CHECK (
-        NOT EXISTS (
-            SELECT nro_voluntario
-            FROM historico
-            GROUP BY nro_voluntario, id_institucion
-            HAVING count(*) > 3
-            AND (extract(year from age(min(fecha_inicio), max(fecha_inicio))) < 1)
-        )
+ALTER TABLE historico
+ADD CONSTRAINT ck_historico_cambiosinstitucion
+CHECK (
+    NOT EXISTS ( SELECT 1
+                   FROM historico
+                   GROUP BY nro_voluntario, extract(year from fecha_inicio)
+                   HAVING count(DISTINCT id_institucion) > 3
+            )
     );
